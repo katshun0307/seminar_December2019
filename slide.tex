@@ -1,0 +1,229 @@
+\documentclass[unicode, aspectratio=169]{beamer}
+\usepackage[ipaex]{luatexja-preset}
+\usepackage{luatexja}
+
+\usepackage{lambdalf}
+\usepackage{mydefault}
+\usepackage{mymath}
+\usepackage{myproof}
+\usepackage{pgfpages}
+
+\setbeameroption{show notes on second screen}
+
+% === set theme === %
+% \usetheme[compress]{Frankfurt}
+% \usetheme[compress]{Execushares}
+\usetheme[compress]{Singapore}
+\usecolortheme{orchid}
+
+% === magic === %
+\AtBeginSection{
+    \frame{\insertsectionhead}
+}
+\makeatletter 
+\def\beamer@framenotesbegin{% at beginning of slide
+     \usebeamercolor[fg]{normal text}
+      \gdef\beamer@noteitems{}% 
+      \gdef\beamer@notes{}% 
+}
+\makeatother
+% ============= %
+
+\addbibresource{mybib.bib}
+
+\title{Staged Dependent Lambda Calculus with Equality Types}
+\subtitle{Reasearch Seminar}
+\author{Shuntaro Katsuda}
+\date{\today}
+\institute{Undergraduate School of Informatics, Kyoto University}
+\titlegraphic{\includegraphics[scale=0.04]{./kuis_logo.jpeg}}
+
+\begin{document}
+    \frame{\titlepage}
+
+    \section{Introduction to the system}
+
+    \begin{frame}{Terms}
+        \lamlfcirc \mysp adds staged computation of Davies's \lamcirc \cite{Davies1996} to  \lamlf \cite{pierce_2005} 
+        \begin{columns}
+            \begin{column}{.4\textwidth}
+                \begin{equation*}\tag{terms}
+                    \begin{aligned}
+                        t \Coloneqq\\
+                        &x\\  
+                        &\lambda x: T. t\\
+                        &t\mysp t \\
+                        &\mynext{t}\\
+                        &\myprev{t}\\
+                        &\myid{t}\\
+                        &\myidpeel{t}{x}{t}\\
+                    \end{aligned}
+                \end{equation*}
+            \end{column}
+            
+            \begin{column}{.4\textwidth}
+                \begin{equation*}\tag{types}
+                    \begin{aligned}
+                        T \Coloneqq\\
+                        &X\\ 
+                        &\textbf{Eq}_T\\
+                        &\Pi x: T. T\\
+                        &T\mysp t\\
+                        &\bigcirc T\\
+                    \end{aligned}
+                \end{equation*}
+            \end{column}
+        \end{columns}
+        \note{
+            hogehoge
+        }
+    \end{frame}
+
+    \section{Equality of terms, types and kinds}
+
+    \begin{frame}{Equality of terms concerning stages}
+
+        Do not allow equivalence of terms via code embedding inside \textrm{next}.
+
+        \infrule[Q-$\bigcirc$\fauxsc{Beta}]{
+            \Gamma \myvdash{n} t : T
+            \andalso \Gamma \myvdash{n} T :: *
+            \andalso m \le 1
+        }{
+            \Gamma \myvdash{n} \myprev{\mynext{t}} \myequiv{m} t : T
+        }
+        
+        \begin{alertblock}{Disallow}
+            $\Gamma \myvdash{n} \mynext{\mynext{3 + \myprev{\mynext{5}}}} \myequiv{0} \mynext{\mynext{3 + 5}}$
+        \end{alertblock}
+
+        \begin{exampleblock}{Allow}
+            $\Gamma \myvdash{n} \mynext{3 + \myprev{\mynext{5}}} \myequiv{0} \mynext{3 + 5}$
+        \end{exampleblock}
+
+    \end{frame}
+
+    \begin{frame}{Example of use}
+        The $\textrm{\bigcirc}$\fauxsc{Beta} rule works well in disallowing code embedding inside \textrm{next}.
+        \begin{alertblock}{Disallow}
+            $\Gamma \myvdash{n} \mynext{\mynext{3 + \myprev{\mynext{5}}}} \myequiv{0} \mynext{\mynext{3 + 5}}$
+        \end{alertblock}
+
+        \begin{prooftree}
+            \AxiomC{$\Gamma \myvdash{n} TODO$}
+        \end{prooftree}
+    \end{frame}
+
+    \begin{frame}{Equivalence of types concerning stages}
+        Because of dependent types, some types include terms.
+        Stages need to be considered when comparing types.
+
+        \begin{exampleblock}{Example}
+            \[\Gamma \myvdash{n} \VEC 3 \equiv^{?}_{0} \VEC (1 + 2)\]
+        \end{exampleblock}
+        \note{
+            前回は, type と kind について equivalence の index がありませんでしたが,
+            よく考えたら必要なことが判明しました.
+            これをどう定義したかについてお話します.
+            とりあえずこの例では同じにしたいです.
+         }
+    \end{frame}
+
+    \begin{frame}{Trickier Example}
+
+        \begin{exampleblock}{Example}
+            \[\Gamma \myvdash{n} \mynext{\VEC 3} \equiv^{?}_{0} \VEC (1 + 2)\]
+        \end{exampleblock}
+
+        \begin{block}{policy}
+            Compare terms inside types at the current equivalence depth.
+        \end{block}
+
+        \note{
+            Vector 3 が next の中に入っています.
+        }
+    \end{frame}
+    
+    \section{Evaluation of terms}
+ 
+    \begin{frame}{Defining values}
+        
+        \begin{columns}
+            \begin{column}{.4\textwidth}
+                \begin{equation*}\tag{values}
+                    \begin{aligned}
+                        v \Coloneqq\\
+                            &\mylam{x}{T}{t}\\
+                            &\mynext{v}\\
+                            &\myid{v}\\
+                            &\myidpeel{v}{x}{v}\\
+                        \end{aligned}
+                \end{equation*}
+            \end{column}
+            \begin{column}{.4\textwidth}
+                \begin{equation*}\tag{indexed terms}
+                    \begin{aligned}
+                        t' \Coloneqq\\
+                        & \myval{t}{d} \mysp (d \in \mathbb{N}) \\
+                    \end{aligned}
+                \end{equation*}  
+
+                \begin{equation*}\tag{indexed values}
+                    \begin{aligned}
+                        v' \Coloneqq\\
+                            & \myval{v}{d} \mysp (d \in \mathbb{N})
+                    \end{aligned}
+                \end{equation*}
+            \end{column}
+        \end{columns}
+    \end{frame}
+
+    \begin{frame}{Meaning of the index}
+        Index of values indicate in which stage we are trying to evaluate a term.
+        \infrule[E-Next]{
+            \myval{t}{d+1} \rightarrow \myval{t'}{d+1}
+            \andalso d \le 1    
+        }{
+            \myval{\mynext{t}}{d} \rightarrow \myval{\mynext{t'}}{d}
+        }
+        
+        \infrule[E-Prev]{
+            \myval{t}{d+1} \rightarrow \myval{t'}{d+1}
+            \andalso d \le 1    
+        }{
+            \myval{\myprev{t}}{d} \rightarrow \myval{\myprev{t'}}{d}
+        }
+    \end{frame}
+
+    \begin{frame}{Rules where index is important}
+        \infrule[E-StageBeta]{
+            \myval{t}{d} \rightarrow \myval{t'}{d}
+            \andalso d \le 1
+        }{
+                \myval{\myprev{\mynext{t}}}{d} \rightarrow \myval{t'}{d}
+        }
+            
+        \infrule[E-StageEta]{
+            \myval{t}{d} \rightarrow \myval{t'}{d} 
+            \andalso d \le 1
+        }{
+            \myval{\mynext{\myprev{t}}}{d} \rightarrow \myval{t'}{d}
+        }
+    \end{frame}
+
+    \begin{frame}{Auxilary rules}
+        
+    \end{frame}
+
+    \begin{frame}{Future work}
+        \begin{itemize}
+            \item{TODO}
+        \end{itemize}
+    \end{frame}
+
+    \begin{frame}{References}
+        \printbibliography
+    \end{frame}
+\end{document}
+
+
