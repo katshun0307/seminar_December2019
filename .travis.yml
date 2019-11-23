@@ -1,0 +1,19 @@
+sudo: required
+language: generic
+before_script:
+  - sudo apt -qq update
+  - sudo apt -qq -y install --no-install-recommends latexmk make texlive-full python-pygments
+script:
+  - make complete
+deploy:
+  provider: releases
+  api_key:
+    secure: 4MjtYLPbXiQpE9rh+g4J8wzDC7JwGk2BPsF2aKA7DGdPdb2Vx4ktthqc6kx8f1XSSrMVKmVW9B0XtRUiPloMjfcAYrMTq0r+7t/cMFRD3nLvlLZXqDkhuvYeERhT1zhc1e6p3y7bNQzCOkswwxVL7zBgTJXoPqkhm/usSQEnWVm2gJWtnvwEXloZLvJktQtsCnEHBhiWyLGfBB8h2SXH7ToJotFceh4kCEGtjVWRu22gwTsd6nRr5C6hPYVUC7bm3NoMX978rtikb99GTZdBBSCk4VeH2H/JM9wPNlMqIfA55SxtI773NWzzuVrWpcmoCto4AQAzWBMz+Eq8dZnPZxzww5ufgXp/SQXWC1NkrhGhfYzm/vzNBIqeBZfx9mkaOJ8mphumJP0c9gk3/rHO/jzGXHIbejZS6fjGkEQkjiPCctgdUudVr/0fjTyNGlCNa/jHPjs4NnMRif5Db/6dRhxTBZFvFiy84zA46PpAccFbiG2uyn4Kn86tNyb8VjOV68B6aB+LRv2dCdU2i1tOXit2CRRwSEn2X5XxED+tBSKiepzNs7RP4y/4yNp0tLi6O236wgzBbq/6EgtWMOm8QZE7d37zMQlX2ljBSMc3/vHNWt/MG8kCZo99JLFC7PdrumyhnQjSK1lfvA2n6eJcf2sUbw+ERAxbMgOcCzVQwxc=
+  file: slide.pdf
+  edge: true
+  on:
+    repo: katshun0307/seminar_December2019
+    tags: true
+notifications:
+  slack:
+    secure: XeGo5XH93Q04uMv5PM0laAEtNPg0s0zwwKkwlkyJWhUoHfC6HObasHLfBNTaAhPTKV9KutsuXQjDEDObpd2MNPoeMVvxV+SwpvSbJjx0DKwW1LJ3T3ZpmZQXIhRd/jeXFzDczKglmliZZGvv8HfxOHPIwef+Fq6cKv1iixnvWCRpUxHIlOC+jpDhrtAbEjnU1kGjkf0efKA0F6N8iYddpS4GihTRfMAx3hM0VxmNGEVlnn8/4jg4w2gSj/6TF6H977Jo7nWg4gken37dQ5FAWj3yTD7Pu4lWpBZIvAYdLsZ6gQzPATBVJD+nz64ZIo0pra60edHOwj/386xc6yEidJOnD+7YmbOVDeqawIdVnELqmvrxCW9YQCJNGfzn7nC8dPFuaBJb3d8ZO43eI7fk1knJuX1SxavARPF29JHZgWp5PANXsfwlv6I+OOzJm6UWdaXw40LvzTePg2D9aOjeJ0XeQmvFSWoWy17LZ+frN06b0joud6KLnENqjketNcGurF4t4c1uA0y0vnI7HuTzvOwEd2NR6Yz1F+UbyQ20nm54lQ/c7okJr+8bSquwus8bXiRzcnzpNm0lYFenb82BeqTt1qeyWO02+8jqYnyZNi471/foM1QgZbuWmWCwJVcQUYp2x9e41GUG4i7JG9oBB6w/iygZ+vRiHzJmW36QLQI=

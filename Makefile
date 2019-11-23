@@ -7,6 +7,11 @@ target = slide.pdf
 all: 
 	make $(target)
 
+complete: slide.tex
+	$(TEX) --shell-escape -interaction=batchmode slide
+	biber --onlylog slide
+	$(TEX) --shell-escape -interaction=batchmode slide
+
 clean:
 	$(RM) *.aux *.log *.dvi *.bcf *.fls *.snm *.bbl *.blg *.out *.nav *.xml *.vrb *.toc
 
@@ -19,5 +24,3 @@ outclean:
 
 %.pdf: %.tex
 	$(TEX) --shell-escape -interaction=batchmode $<
-	# biber --onlylog $*
-	# $(TEX) --shell-escape -interaction=batchmode $<
